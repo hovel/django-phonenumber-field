@@ -2,11 +2,12 @@
 
 from __future__ import unicode_literals
 
-from django.utils.translation import ugettext_lazy as _
-from django.forms.fields import CharField
 from django.core.exceptions import ValidationError
-from phonenumber_field.validators import validate_international_phonenumber
+from django.forms.fields import CharField
+from django.utils.translation import ugettext_lazy as _
+
 from phonenumber_field.phonenumber import to_python
+from phonenumber_field.validators import validate_international_phonenumber
 
 
 class PhoneNumberField(CharField):
@@ -14,6 +15,10 @@ class PhoneNumberField(CharField):
         'invalid': _('Enter a valid phone number.'),
     }
     default_validators = [validate_international_phonenumber]
+
+    def __init__(self, *args, **kwargs):
+        super(PhoneNumberField, self).__init__(*args, **kwargs)
+        self.widget.input_type = 'tel'
 
     def to_python(self, value):
         phone_number = to_python(value)

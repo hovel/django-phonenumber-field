@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
 
+from django.conf import settings
 from django.core import validators
 from django.db import models
+from django.db.models.fields import NOT_PROVIDED
 from django.utils.translation import ugettext_lazy as _
-from phonenumber_field.validators import validate_international_phonenumber
+
 from phonenumber_field import formfields
-from phonenumber_field.phonenumber import PhoneNumber, to_python, string_types
+from phonenumber_field.phonenumber import PhoneNumber, string_types, to_python
+from phonenumber_field.validators import validate_international_phonenumber
 
 
 class PhoneNumberDescriptor(object):
@@ -52,19 +55,25 @@ class PhoneNumberField(models.Field):
         return "CharField"
 
     def get_prep_value(self, value):
-        "Returns field's value prepared for saving into a database."
+        """Returns field's value prepared for saving into a database."""
         if not value:
-            if self.has_default():
+            if self.default is not NOT_PROVIDED:
                 return to_python(self.default)
-            if not self.null:
+            elif self.null:
+                return None
+            else:
+                # returns empty string even if blank is False
+                # blank should be handled at form level
                 return ''
-            return value
+        else:
+            value = to_python(value)
 
-        value = to_python(value)
         if isinstance(value, string_types):
             # it is an invalid phone number
             return value
-        return value.as_e164
+        format_string = getattr(settings, 'PHONENUMBER_DB_FORMAT', 'E164')
+        fmt = PhoneNumber.format_map[format_string]
+        return value.format_as(fmt)
 
     def contribute_to_class(self, cls, name):
         super(PhoneNumberField, self).contribute_to_class(cls, name)
@@ -77,8 +86,10 @@ class PhoneNumberField(models.Field):
         defaults.update(kwargs)
         return super(PhoneNumberField, self).formfield(**defaults)
 
+
 try:
     from south.modelsinspector import add_introspection_rules
+
     add_introspection_rules([
         (
             [PhoneNumberField],
