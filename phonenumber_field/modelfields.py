@@ -59,12 +59,9 @@ class PhoneNumberField(models.Field):
         if not value:
             if self.default is not NOT_PROVIDED:
                 return to_python(self.default)
-            elif self.null:
-                return None
-            else:
-                # returns empty string even if blank is False
-                # blank should be handled at form level
+            if not self.null:
                 return ''
+            return value
         else:
             value = to_python(value)
 
