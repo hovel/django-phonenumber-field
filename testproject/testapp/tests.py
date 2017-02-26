@@ -112,6 +112,14 @@ class PhonenumerFieldAppTest(TestCase):
         pk = tm.id
         tm = TestModel.objects.get(pk=pk)
         self.assertEqual(str(tm.phone), '+41524242424')
+        print(TestModel.objects
+                .exclude(Q(phone__isnull=True) | Q(phone=''))
+                .filter(pk=pk)
+                .query)
+        print(TestModel.objects
+                .filter(Q(phone__isnull=True) | Q(phone=''))
+                .filter(pk=pk)
+                .query)
         self.assertEqual(
             1,
             TestModel.objects
