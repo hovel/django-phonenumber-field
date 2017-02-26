@@ -1,4 +1,5 @@
 # Django settings for testproject project.
+import os
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -11,15 +12,22 @@ MANAGERS = ADMINS
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': '',                      # Or path to database file if using sqlite3.
-        # The following settings are not used with sqlite3:
-        'USER': '',
-        'PASSWORD': '',
-        'HOST': '',                      # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
-        'PORT': '',                      # Set to empty string for default.
+        'NAME': 'test_phonenumberfield',
+        'TEST': {
+            'CHARSET': 'utf8',
+        },
+        'ATOMIC_REQUESTS': True,
     }
 }
+
+test_db = os.environ.get('DB', 'sqlite')
+if test_db == 'sqlite':
+    DATABASES['default']['ENGINE'] = 'django.db.backends.sqlite3'
+elif test_db == 'mysql':
+    DATABASES['default']['ENGINE'] = 'django.db.backends.mysql'
+    DATABASES['default']['TEST']['COLLATION'] = 'utf8_general_ci'
+elif test_db == 'postgresql':
+    DATABASES['default']['ENGINE'] = 'django.db.backends.postgresql_psycopg2'
 
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts

@@ -7,30 +7,108 @@ python:
   - "pypy"
   - "pypy3"
 install:
+  - if [[ $DB == mysql ]]; then pip install -qU mysqlclient; fi
+  - if [[ $DB == postgresql ]]; then pip install -qU psycopg2; fi
   - ./.travis_setup
 env:
-  - DJANGO="django>=1.5,<1.6"
-  - DJANGO="django>=1.6,<1.7"
-  - DJANGO="django>=1.7,<1.8"
-  - DJANGO="django>=1.8,<1.9"
-  - DJANGO="django>=1.9,<1.10"
-  - DJANGO="django>=1.10,<1.11"
+  - DJANGO="django>=1.5,<1.6" DB=sqlite
+  - DJANGO="django>=1.5,<1.6" DB=mysql
+  - DJANGO="django>=1.5,<1.6" DB=postgresql
+  - DJANGO="django>=1.6,<1.7" DB=sqlite
+  - DJANGO="django>=1.6,<1.7" DB=mysql
+  - DJANGO="django>=1.6,<1.7" DB=postgresql
+  - DJANGO="django>=1.7,<1.8" DB=sqlite
+  - DJANGO="django>=1.7,<1.8" DB=mysql
+  - DJANGO="django>=1.7,<1.8" DB=postgresql
+  - DJANGO="django>=1.8,<1.9" DB=sqlite
+  - DJANGO="django>=1.8,<1.9" DB=mysql
+  - DJANGO="django>=1.8,<1.9" DB=postgresql
+  - DJANGO="django>=1.9,<1.10" DB=sqlite
+  - DJANGO="django>=1.9,<1.10" DB=mysql
+  - DJANGO="django>=1.9,<1.10" DB=postgresql
+  - DJANGO="django>=1.10,<1.11" DB=sqlite
+  - DJANGO="django>=1.10,<1.11" DB=mysql
+  - DJANGO="django>=1.10,<1.11" DB=postgresql
 matrix:
   exclude:
     - python: "3.5"
-      env: DJANGO="django>=1.5,<1.6"
+      env: DJANGO="django>=1.5,<1.6" DB=sqlite
     - python: "3.5"
-      env: DJANGO="django>=1.6,<1.7"
+      env: DJANGO="django>=1.5,<1.6" DB=mysql
     - python: "3.5"
-      env: DJANGO="django>=1.7,<1.8"
+      env: DJANGO="django>=1.5,<1.6" DB=postgresql
+    - python: "3.5"
+      env: DJANGO="django>=1.6,<1.7" DB=sqlite
+    - python: "3.5"
+      env: DJANGO="django>=1.6,<1.7" DB=mysql
+    - python: "3.5"
+      env: DJANGO="django>=1.6,<1.7" DB=postgresql
+    - python: "3.5"
+      env: DJANGO="django>=1.7,<1.8" DB=sqlite
+    - python: "3.5"
+      env: DJANGO="django>=1.7,<1.8" DB=mysql
+    - python: "3.5"
+      env: DJANGO="django>=1.7,<1.8" DB=postgresql
+
     - python: "3.3"
-      env: DJANGO="django>=1.9,<1.10"
+      env: DJANGO="django>=1.9,<1.10" DB=sqlite
     - python: "3.3"
-      env: DJANGO="django>=1.10,<1.11"
+      env: DJANGO="django>=1.9,<1.10" DB=mysql
+    - python: "3.3"
+      env: DJANGO="django>=1.9,<1.10" DB=postgresql
+    - python: "3.3"
+      env: DJANGO="django>=1.10,<1.11" DB=sqlite
+    - python: "3.3"
+      env: DJANGO="django>=1.10,<1.11" DB=mysql
+    - python: "3.3"
+      env: DJANGO="django>=1.10,<1.11" DB=postgresql
+
+    - python: "pypy"
+      env: DJANGO="django>=1.5,<1.6" DB=postgresql
+    - python: "pypy"
+      env: DJANGO="django>=1.6,<1.7" DB=postgresql
+    - python: "pypy"
+      env: DJANGO="django>=1.7,<1.8" DB=postgresql
+    - python: "pypy"
+      env: DJANGO="django>=1.8,<1.9" DB=postgresql
+    - python: "pypy"
+      env: DJANGO="django>=1.9,<1.10" DB=postgresql
+    - python: "pypy"
+      env: DJANGO="django>=1.10,<1.11" DB=postgresql
+
     - python: "pypy3"
-      env: DJANGO="django>=1.9,<1.10"
+      env: DJANGO="django>=1.9,<1.10" DB=sqlite
     - python: "pypy3"
-      env: DJANGO="django>=1.10,<1.11"
+      env: DJANGO="django>=1.10,<1.11" DB=sqlite
+
+    - python: "pypy3"
+      env: DJANGO="django>=1.5,<1.6" DB=mysql
+    - python: "pypy3"
+      env: DJANGO="django>=1.6,<1.7" DB=mysql
+    - python: "pypy3"
+      env: DJANGO="django>=1.7,<1.8" DB=mysql
+    - python: "pypy3"
+      env: DJANGO="django>=1.8,<1.9" DB=mysql
+    - python: "pypy3"
+      env: DJANGO="django>=1.9,<1.10" DB=mysql
+    - python: "pypy3"
+      env: DJANGO="django>=1.10,<1.11" DB=mysql
+
+    - python: "pypy3"
+      env: DJANGO="django>=1.5,<1.6" DB=postgresql
+    - python: "pypy3"
+      env: DJANGO="django>=1.6,<1.7" DB=postgresql
+    - python: "pypy3"
+      env: DJANGO="django>=1.7,<1.8" DB=postgresql
+    - python: "pypy3"
+      env: DJANGO="django>=1.8,<1.9" DB=postgresql
+    - python: "pypy3"
+      env: DJANGO="django>=1.9,<1.10" DB=postgresql
+    - python: "pypy3"
+      env: DJANGO="django>=1.10,<1.11" DB=postgresql
+before_script:
+  - if [[ $DB == mysql ]]; then mysql -e 'SET GLOBAL wait_timeout = 36000; create database test_phonenumberfield;'; fi
+  - if [[ $DB == postgresql ]]; then psql -c 'create database test_phonenumberfield;' -U postgres; fi
 script:
   - cd ./testproject; coverage run --source=phonenumber_field manage.py test phonenumber_field testapp
 after_success:
